@@ -93,3 +93,85 @@ def comments(request, post_id):
     context = {'post': post, 'comments': comments}
 
     return render(request, 'FeedApp/comments.html', context)
+
+
+
+@login_required
+def friendsfeed(request):
+    comment_count_list = []
+    like_count_list = []
+    friends = Profile.objects.filter(user=request.user).values('friends')
+    posts = Post.objects.filter(username__in=friends).order_by('-date_posted')
+    for p in posts:
+        c_count = Comment.objects.filter(post=p).count()
+        l_count = Like.objects.filter(post=p).count()
+        comment_count_list.append(c_count)
+        like_count_list.append(l_count)
+    zipped_list = zip(posts, comment_count_list, like_count_list)
+
+    if request.method == 'POST' and request.POST.get('like'):
+        post_to_like = request.POST.get('like')
+        print(post_to_like)
+        like_already_exists = Like.objects.filter(post_id=post_to_like, username=request.user)
+        if not like_already_exists.exists():
+            Like.objects.create(post_id=post_to_like, username=request.user)
+            return redirect('FeedApp:friendsfeed')
+
+    context = {'posts': posts, 'zipped_list': zipped_list}
+    return render(request, 'FeedApp/friendsfeed.html', context)
+
+
+@login_required
+def friends(request):
+    # to Get the admin_profile and user_profile to create the first relationship
+    admin_profile = Profile.objects.get(user=1)
+    user_profile = Profile.objects.get(user=request.user)
+
+    # To get my friends
+    user_friends = user_profile.friends.all()
+    user_friends_profiles = Profile.objects.filter(user__in=user_friends)
+
+    # To get friend requests sent
+    user_relationships = Relationship.objects.filter(sender=user_profile)
+    request_sent_profiles = user_relationships.values('receiver')
+
+    # To get eligible profiles, exclude the user, their existing friends, and friend requests sent already
+    all_profiles = Profile.objects.exclude(user=request.user).exclude(id__in=user_friends_profiles).exclude(id__in=request_sent_profiles)
+
+    # To get friend requests received by the user
+    request_received_profiles = Relationship.objects.filter(receiver=user_profile, status='sent')
+
+    # If this is the first time to access the friend request page, create the first relationship 
+    # with the admin of the website (so the admins is friends with everyone)
+    if not user_relationships.exists():    # 'filter' works with exists 'get' does not
+        Relationship.objects.create(sender=user_profile, receiver=admin_profile, status='sent')
+        
+    # Check to see which submit button was pressed (sending a friend request or accepting a friend request)
+
+    # This is to process all send requests
+    if request.method == 'POST' and request.POST.get('send_requests'):
+        receivers = request.POST.getlist('send_requests')
+        for receiver in receivers:
+            receiver_profile = Profile.objects.get(id=receiver)
+            Relationship.objects.create(sender=user_profile, receiver=receiver_profile, status='sent')
+        return redirect('FeedApp:friends')
+
+    # This is to process all receive requests
+    if request.method == 'POST' and request.POST.get('receive_requests'):
+        senders = request.POST.getlist('receive_requests')
+        for sender in senders:
+            # Update the relationship model for the sender to status 'accepted'
+            Relationship.objects.filter(id=sender).update(status='accepted')
+
+            #Create a relationship object to access the sender's user ID 
+            # to add to the friend list of the user
+            relationship_obj = Relationship.objects.get(id=sender)
+            user_profile.friends.add(relationship_obj.sender.user)
+
+            # to Add the user to the sender's friend list
+            relationship_obj.sender.friends.add(request.user)
+    
+    context = {'user_friends_profiles': user_friends_profiles, 'user_relationships': user_relationships,
+                'all_profiles': all_profiles, 'request_received_profiles': request_received_profiles}
+
+    return render(request, 'FeedApp/friends.html', context)
