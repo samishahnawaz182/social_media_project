@@ -1,12 +1,52 @@
 {% extends "FeedApp/base.html" %}
 
 {% block page_header %}
-    <div class="jumbotron">
-       <h1 class="display-3">Feed</h1>
-            <p class="lead">A Social Network where you can be you.
-            </p>
+<style>
+    .custom-jumbotron {
+        background: linear-gradient(135deg, #4a90e2, #6fb1fc);
+        color: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        text-align: center;
+    }
 
-            <a class="btn btn-lg btn-outline-primary" href="{% url 'users:register' %}"
-            role="button">Join Now &raquo;</a>
-    </div>
+    .custom-jumbotron h1 {
+        font-weight: 700;
+        font-size: 52px;
+        margin-bottom: 15px;
+    }
+
+    .custom-jumbotron p {
+        font-size: 20px;
+        opacity: 0.9;
+    }
+
+    .join-btn {
+        margin-top: 20px;
+        padding: 12px 28px;
+        font-size: 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        border: 2px solid #ffffff;
+        color: #ffffff;
+        transition: 0.3s;
+    }
+
+    .join-btn:hover {
+        background-color: #ffffff;
+        color: #4a90e2;
+        box-shadow: 0 0 10px rgba(255,255,255,0.7);
+    }
+</style>
+
+<div class="custom-jumbotron">
+    <h1 class="display-3">Feed</h1>
+    <p class="lead">A Social Network where you can be you.</p>
+
+    <a class="btn join-btn" href="{% url 'users:register' %}" role="button">
+        Join Now &raquo;
+    </a>
+</div>
+
 {% endblock page_header %}
