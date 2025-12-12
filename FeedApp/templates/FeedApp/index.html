@@ -2,7 +2,7 @@
 
 {% block page_header %}
 <style>
-    .custom-jumbotron {
+    .edit_1 {
         background: linear-gradient(135deg, #4a90e2, #6fb1fc);
         color: white;
         padding: 40px;
@@ -11,18 +11,18 @@
         text-align: center;
     }
 
-    .custom-jumbotron h1 {
+    .edit_title {
         font-weight: 700;
         font-size: 52px;
         margin-bottom: 15px;
     }
 
-    .custom-jumbotron p {
+    .edit_text {
         font-size: 20px;
         opacity: 0.9;
     }
 
-    .join-btn {
+    .edit_btn {
         margin-top: 20px;
         padding: 12px 28px;
         font-size: 20px;
@@ -33,18 +33,18 @@
         transition: 0.3s;
     }
 
-    .join-btn:hover {
+    .edit_btn:hover {
         background-color: #ffffff;
         color: #4a90e2;
         box-shadow: 0 0 10px rgba(255,255,255,0.7);
     }
 </style>
 
-<div class="custom-jumbotron">
-    <h1 class="display-3">Feed</h1>
-    <p class="lead">A Social Network where you can be you.</p>
+<div class="edit_1">
+    <h1 class="edit_title">Feed</h1>
+    <p class="edit_text">A Social Network where you can be you.</p>
 
-    <a class="btn join-btn" href="{% url 'users:register' %}" role="button">
+    <a class="btn edit_btn" href="{% url 'users:register' %}" role="button">
         Join Now &raquo;
     </a>
 </div>
